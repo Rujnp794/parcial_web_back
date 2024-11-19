@@ -1,12 +1,12 @@
 package com.example.parcial_web_back.config;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 @Configuration
 public class ModelMapperConfig {
@@ -16,26 +16,26 @@ public class ModelMapperConfig {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
-        // Custom converter for Date
+        // Custom converter for LocalDate
         modelMapper.addConverter(context -> {
             String source = context.getSource();
             if (source == null) {
                 return null;
             }
             try {
-                return new SimpleDateFormat("yyyy-MM-dd").parse(source);
+                return LocalDate.parse(source, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error al convertir fecha: " + source, e);
             }
-        }, String.class, Date.class);
+        }, String.class, LocalDate.class);
 
         modelMapper.addConverter(context -> {
-            Date source = context.getSource();
+            LocalDate source = context.getSource();
             if (source == null) {
                 return null;
             }
-            return new SimpleDateFormat("yyyy-MM-dd").format(source);
-        }, Date.class, String.class);
+            return source.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        }, LocalDate.class, String.class);
 
         return modelMapper;
     }
